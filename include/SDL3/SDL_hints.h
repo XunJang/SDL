@@ -3303,6 +3303,23 @@ extern "C" {
 #define SDL_HINT_RENDER_DIRECT3D_THREADSAFE "SDL_RENDER_DIRECT3D_THREADSAFE"
 
 /**
+ * A variable controlling whether the Direct3D 11 renderer allows flip-model
+ * swap chains.
+ *
+ * This variable does not have any effect on the Direct3D 9 based renderer.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "0": Disable flip-model swap chains and prefer BitBlt-style presentation.
+ * - "1": Allow flip-model swap chains. (default)
+ *
+ * This hint should be set before creating a renderer.
+ *
+ * \since This hint is available since SDL 3.4.0.
+ */
+#define SDL_HINT_RENDER_DIRECT3D11_ALLOW_FLIPS "SDL_RENDER_DIRECT3D11_ALLOW_FLIPS"
+
+/**
  * A variable controlling whether to enable Direct3D 11+'s Debug Layer.
  *
  * This variable does not have any effect on the Direct3D 9 based renderer.

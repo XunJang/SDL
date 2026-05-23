@@ -829,6 +829,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     IUnknown *coreWindow = NULL;
     IDXGISwapChain3 *swapChain3 = NULL;
     HRESULT result = S_OK;
+    const bool allowFlips = SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D11_ALLOW_FLIPS, true);
 
     // Create a swap chain using the same adapter as the existing Direct3D device.
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
@@ -850,19 +851,22 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.BufferCount = 2; // Use double-buffering to minimize latency.
+    swapChainDesc.BufferCount = allowFlips ? 2 : 1;
     if (WIN_IsWindows8OrGreater()) {
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
     } else {
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
     }
-    if (SDL_GetWindowFlags(renderer->window) & SDL_WINDOW_TRANSPARENT) {
+    if (!allowFlips || (SDL_GetWindowFlags(renderer->window) & SDL_WINDOW_TRANSPARENT)) {
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
     } else {
-        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
     }
     swapChainDesc.Flags = data->swapChainFlags;
+    if (!allowFlips) {
+        swapChainDesc.Flags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    }
 
     if (coreWindow) {
         result = IDXGIFactory2_CreateSwapChainForCoreWindow(data->dxgiFactory,
