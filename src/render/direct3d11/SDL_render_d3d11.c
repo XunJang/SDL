@@ -897,6 +897,7 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     if (!allowFlips || swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_DISCARD) {
         swapChainDesc.Flags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
     }
+    data->swapChainFlags = swapChainDesc.Flags;
 
     if (coreWindow) {
         result = IDXGIFactory2_CreateSwapChainForCoreWindow(data->dxgiFactory,
