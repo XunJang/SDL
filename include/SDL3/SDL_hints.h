@@ -3303,6 +3303,18 @@ extern "C" {
 #define SDL_HINT_RENDER_DIRECT3D_THREADSAFE "SDL_RENDER_DIRECT3D_THREADSAFE"
 
 /**
+ * A variable controlling the Direct3D 11 swap chain buffer count.
+ *
+ * This hint should be set before creating a renderer.
+ *
+ * The value should be a positive integer. If unset, SDL chooses a default
+ * based on the selected swap effect.
+ *
+ * \since This hint is available since SDL 3.4.0.
+ */
+#define SDL_HINT_RENDER_DIRECT3D11_BUFFER_COUNT "SDL_RENDER_DIRECT3D11_BUFFER_COUNT"
+
+/**
  * A variable controlling whether the Direct3D 11 renderer allows flip-model
  * swap chains.
  *
@@ -3318,6 +3330,36 @@ extern "C" {
  * \since This hint is available since SDL 3.4.0.
  */
 #define SDL_HINT_RENDER_DIRECT3D11_ALLOW_FLIPS "SDL_RENDER_DIRECT3D11_ALLOW_FLIPS"
+
+/**
+ * A variable controlling whether the Direct3D 11 renderer allows flip-model
+ * swap chain scaling mode.
+ *
+ * This hint should be set before creating a renderer.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "none": Use DXGI_SCALING_NONE.
+ * - "stretch": Use DXGI_SCALING_STRETCH.
+ *
+ * \since This hint is available since SDL 3.4.0.
+ */
+#define SDL_HINT_RENDER_DIRECT3D11_SCALING "SDL_RENDER_DIRECT3D11_SCALING"
+
+/**
+ * A variable controlling the Direct3D 11 swap chain swap effect.
+ *
+ * This hint should be set before creating a renderer.
+ *
+ * The variable can be set to the following values:
+ *
+ * - "discard": Use DXGI_SWAP_EFFECT_DISCARD.
+ * - "flip-sequential": Use DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL.
+ * - "flip-discard": Use DXGI_SWAP_EFFECT_FLIP_DISCARD.
+ *
+ * \since This hint is available since SDL 3.4.0.
+ */
+#define SDL_HINT_RENDER_DIRECT3D11_SWAP_EFFECT "SDL_RENDER_DIRECT3D11_SWAP_EFFECT"
 
 /**
  * A variable controlling whether to enable Direct3D 11+'s Debug Layer.

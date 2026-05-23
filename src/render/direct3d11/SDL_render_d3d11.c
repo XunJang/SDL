@@ -830,6 +830,9 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     IDXGISwapChain3 *swapChain3 = NULL;
     HRESULT result = S_OK;
     const bool allowFlips = SDL_GetHintBoolean(SDL_HINT_RENDER_DIRECT3D11_ALLOW_FLIPS, true);
+    const char *bufferCountHint = SDL_GetHint(SDL_HINT_RENDER_DIRECT3D11_BUFFER_COUNT);
+    const char *scalingHint = SDL_GetHint(SDL_HINT_RENDER_DIRECT3D11_SCALING);
+    const char *swapEffectHint = SDL_GetHint(SDL_HINT_RENDER_DIRECT3D11_SWAP_EFFECT);
 
     // Create a swap chain using the same adapter as the existing Direct3D device.
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc;
@@ -852,6 +855,12 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.BufferCount = allowFlips ? 2 : 1;
+    if (bufferCountHint && *bufferCountHint) {
+        const int parsedBufferCount = SDL_atoi(bufferCountHint);
+        if (parsedBufferCount > 0) {
+            swapChainDesc.BufferCount = (UINT)parsedBufferCount;
+        }
+    }
     if (WIN_IsWindows8OrGreater()) {
         swapChainDesc.Scaling = DXGI_SCALING_NONE;
     } else {
@@ -863,8 +872,29 @@ static HRESULT D3D11_CreateSwapChain(SDL_Renderer *renderer, int w, int h)
     } else {
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
     }
+
+    if (scalingHint && *scalingHint) {
+        if (SDL_strcasecmp(scalingHint, "none") == 0) {
+            swapChainDesc.Scaling = DXGI_SCALING_NONE;
+        } else if (SDL_strcasecmp(scalingHint, "stretch") == 0) {
+            swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+        }
+    }
+
+    if (swapEffectHint && *swapEffectHint) {
+        if (SDL_strcasecmp(swapEffectHint, "discard") == 0) {
+            swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+        } else if (SDL_strcasecmp(swapEffectHint, "flip-sequential") == 0) {
+            swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+#ifdef DXGI_SWAP_EFFECT_FLIP_DISCARD
+        } else if (SDL_strcasecmp(swapEffectHint, "flip-discard") == 0) {
+            swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+#endif
+        }
+    }
+
     swapChainDesc.Flags = data->swapChainFlags;
-    if (!allowFlips) {
+    if (!allowFlips || swapChainDesc.SwapEffect == DXGI_SWAP_EFFECT_DISCARD) {
         swapChainDesc.Flags &= ~DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
     }
 
